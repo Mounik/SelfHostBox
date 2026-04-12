@@ -1,0 +1,15 @@
+[Unit]
+Description=SelfHostBox - Self-Hosting Platform
+After=network.target docker.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/selfhostbox
+Environment=PYTHONPATH=/opt/selfhostbox
+ExecStart=/usr/bin/python3 /opt/selfhostbox/backend/app.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

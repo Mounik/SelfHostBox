@@ -1,0 +1,31 @@
+# SelfHostBox Configuration
+version: "1.0"
+
+base_domain: "selfhostbox.local"
+traefik_network: selfhostbox
+
+ssl:
+  enabled: true
+  email: admin@example.com
+  provider: letsencrypt
+  staging: false
+
+storage:
+  data_dir: /opt/selfhostbox/data
+  backups_dir: /opt/selfhostbox/backups
+
+backup:
+  enabled: true
+  schedule: "0 2 * * *"
+  retention_days: 7
+
+updates:
+  enabled: true
+  check_interval: "24h"
+  auto_apply: false
+
+apps_dir: /opt/selfhostbox/apps
+
+database:
+  type: sqlite
+  path: /opt/selfhostbox/selfhostbox.db
