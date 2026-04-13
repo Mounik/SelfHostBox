@@ -1,135 +1,374 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>SelfHostBox</title>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, system-ui, sans-serif; background: #0d1117; color: #c9d1d9; }
-        .header { background: #161b22; padding: 1rem 2rem; border-bottom: 1px solid #30363d; }
-        .header h1 { color: #58a6ff; }
+        .header {
+            background: #161b22; padding: 1rem 2rem; border-bottom: 1px solid #30363d;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
+        }
+        .header h1 { color: #58a6ff; font-size: 1.3rem; }
+        .header-right { display: flex; align-items: center; gap: 1rem; }
         .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
         .stat-card { background: #161b22; border: 1px solid #30363d; padding: 1.5rem; border-radius: 8px; text-align: center; }
         .stat-value { font-size: 2rem; font-weight: 700; color: #3fb950; }
         .stat-label { color: #8b949e; font-size: 0.85rem; }
         .section { margin-bottom: 2rem; }
         .section-title { font-size: 1.5rem; margin-bottom: 1rem; }
         .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; }
-        .app-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5rem; cursor: pointer; transition: border-color 0.2s; }
+        .app-card {
+            background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5rem;
+            transition: border-color 0.2s;
+        }
         .app-card:hover { border-color: #58a6ff; }
         .app-name { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; }
         .app-desc { color: #8b949e; font-size: 0.9rem; }
-        .btn { display: inline-block; padding: 0.5rem 1rem; background: #238636; color: white; text-decoration: none; border-radius: 6px; border: none; cursor: pointer; }
-        .btn:hover { background: #2ea043; }
+        .btn {
+            display: inline-block; padding: 0.5rem 1rem; color: white; text-decoration: none;
+            border-radius: 6px; border: none; cursor: pointer; font-size: 0.85rem;
+        }
+        .btn-primary { background: #238636; }
+        .btn-primary:hover { background: #2ea043; }
+        .btn-danger { background: #da3633; }
+        .btn-danger:hover { background: #b62324; }
+        .btn-secondary { background: #30363d; }
+        .btn-secondary:hover { background: #484f58; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .actions { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .loading { opacity: 0.5; pointer-events: none; }
+        .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #8b949e; border-top-color: #58a6ff; border-radius: 50%; animation: spin 0.6s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .toast {
+            position: fixed; bottom: 1rem; right: 1rem; padding: 0.75rem 1.25rem; border-radius: 8px;
+            color: white; font-size: 0.9rem; z-index: 1000; max-width: 400px;
+            animation: fadeIn 0.3s;
+        }
+        .toast-error { background: #da3633; }
+        .toast-success { background: #238636; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .auth-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #0d1117;
+            display: flex; align-items: center; justify-content: center; z-index: 999;
+        }
+        .auth-card {
+            background: #161b22; border: 1px solid #30363d; border-radius: 12px;
+            padding: 2rem; width: 100%; max-width: 400px;
+        }
+        .auth-card h2 { color: #58a6ff; margin-bottom: 1.5rem; text-align: center; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.25rem; color: #8b949e; font-size: 0.85rem; }
+        .form-group input {
+            width: 100%; padding: 0.6rem 0.75rem; background: #0d1117; border: 1px solid #30363d;
+            border-radius: 6px; color: #c9d1d9; font-size: 1rem;
+        }
+        .form-group input:focus { outline: none; border-color: #58a6ff; }
+        .auth-card .btn { width: 100%; text-align: center; margin-top: 0.5rem; }
+        #main-app { display: none; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🏠 SelfHostBox</h1>
-    </div>
-    <div class="container">
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-value" id="app-count">0</div>
-                <div class="stat-label">Apps Deployed</div>
+    <div id="auth-overlay" class="auth-overlay" style="display:none;">
+        <div class="auth-card">
+            <h2>SelfHostBox</h2>
+            <div id="setup-form" style="display:none;">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="setup-username" value="admin">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="setup-password" placeholder="Min 8 characters">
+                </div>
+                <button class="btn btn-primary" onclick="doSetup()">Create Admin</button>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" id="cpu-usage">0%</div>
-                <div class="stat-label">CPU Usage</div>
+            <div id="login-form" style="display:none;">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="login-username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password">
+                </div>
+                <button class="btn btn-primary" onclick="doLogin()">Login</button>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" id="mem-usage">0%</div>
-                <div class="stat-label">Memory</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="disk-usage">0%</div>
-                <div class="stat-label">Disk</div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2 class="section-title">App Store</h2>
-            <div class="app-grid" id="app-store"></div>
-        </div>
-
-        <div class="section">
-            <h2 class="section-title">Deployed Apps</h2>
-            <div class="app-grid" id="deployed-apps"></div>
         </div>
     </div>
+
+    <div id="main-app">
+        <div class="header">
+            <h1>SelfHostBox</h1>
+            <div class="header-right">
+                <span id="user-display"></span>
+                <button class="btn btn-secondary" onclick="doLogout()">Logout</button>
+            </div>
+        </div>
+        <div class="container">
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="app-count">0</div>
+                    <div class="stat-label">Apps Deployed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="cpu-usage">0%</div>
+                    <div class="stat-label">CPU Usage</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="mem-usage">0%</div>
+                    <div class="stat-label">Memory</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="disk-usage">0%</div>
+                    <div class="stat-label">Disk</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">App Store</h2>
+                <div class="app-grid" id="app-store"></div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Deployed Apps</h2>
+                <div class="app-grid" id="deployed-apps"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
 
     <script>
+        let token = localStorage.getItem('shb_token');
+        let username = localStorage.getItem('shb_username');
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function showToast(message, type) {
+            const el = document.createElement('div');
+            el.className = 'toast toast-' + type;
+            el.textContent = message;
+            document.getElementById('toast-container').appendChild(el);
+            setTimeout(() => el.remove(), 4000);
+        }
+
+        async function apiFetch(url, options = {}) {
+            const headers = options.headers || {};
+            if (token) headers['Authorization'] = 'Bearer ' + token;
+            if (options.body) headers['Content-Type'] = 'application/json';
+            const res = await fetch(url, { ...options, headers });
+            if (res.status === 401) {
+                token = null;
+                localStorage.removeItem('shb_token');
+                showAuth();
+                throw new Error('Unauthorized');
+            }
+            return res;
+        }
+
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/auth/check');
+                const data = await res.json();
+                if (data.setup_required) {
+                    document.getElementById('auth-overlay').style.display = 'flex';
+                    document.getElementById('setup-form').style.display = 'block';
+                    document.getElementById('login-form').style.display = 'none';
+                } else if (!token) {
+                    document.getElementById('auth-overlay').style.display = 'flex';
+                    document.getElementById('setup-form').style.display = 'none';
+                    document.getElementById('login-form').style.display = 'block';
+                } else {
+                    showApp();
+                }
+            } catch {
+                showAuth();
+            }
+        }
+
+        async function doSetup() {
+            const u = document.getElementById('setup-username').value;
+            const p = document.getElementById('setup-password').value;
+            try {
+                const res = await fetch('/api/auth/setup', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username: u, password: p})
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    token = data.token;
+                    username = data.username;
+                    localStorage.setItem('shb_token', token);
+                    localStorage.setItem('shb_username', username);
+                    showApp();
+                    showToast('Admin created', 'success');
+                } else {
+                    showToast(data.error || 'Setup failed', 'error');
+                }
+            } catch (e) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        async function doLogin() {
+            const u = document.getElementById('login-username').value;
+            const p = document.getElementById('login-password').value;
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username: u, password: p})
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    token = data.token;
+                    username = data.username;
+                    localStorage.setItem('shb_token', token);
+                    localStorage.setItem('shb_username', username);
+                    showApp();
+                    showToast('Logged in', 'success');
+                } else {
+                    showToast(data.error || 'Login failed', 'error');
+                }
+            } catch (e) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        function doLogout() {
+            token = null;
+            username = null;
+            localStorage.removeItem('shb_token');
+            localStorage.removeItem('shb_username');
+            showAuth();
+        }
+
+        function showAuth() {
+            document.getElementById('auth-overlay').style.display = 'flex';
+            document.getElementById('main-app').style.display = 'none';
+        }
+
+        function showApp() {
+            document.getElementById('auth-overlay').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            document.getElementById('user-display').textContent = username || '';
+            loadSystem();
+            loadStore();
+            loadDeployed();
+        }
+
         async function loadSystem() {
-            const res = await fetch('/api/system/info');
-            const data = await res.json();
-            document.getElementById('cpu-usage').textContent = data.cpu_percent + '%';
-            document.getElementById('mem-usage').textContent = data.memory.percent + '%';
-            document.getElementById('disk-usage').textContent = data.disk.percent + '%';
+            try {
+                const res = await apiFetch('/api/system/info');
+                if (!res.ok) return;
+                const data = await res.json();
+                document.getElementById('cpu-usage').textContent = data.cpu_percent + '%';
+                document.getElementById('mem-usage').textContent = data.memory.percent + '%';
+                document.getElementById('disk-usage').textContent = data.disk.percent + '%';
+            } catch {}
         }
 
         async function loadStore() {
-            const res = await fetch('/api/store');
-            const apps = await res.json();
-            const grid = document.getElementById('app-store');
-            grid.innerHTML = apps.map(app => `
-                <div class="app-card" onclick="deployApp('${app.id}')">
-                    <div class="app-name">${app.name}</div>
-                    <div class="app-desc">${app.description || ''}</div>
-                </div>
-            `).join('');
+            try {
+                const res = await apiFetch('/api/store');
+                if (!res.ok) return;
+                const apps = await res.json();
+                const grid = document.getElementById('app-store');
+                grid.innerHTML = apps.map(app => {
+                    const safeName = escapeHtml(app.name || app.id);
+                    const safeDesc = escapeHtml(app.description || '');
+                    const safeId = escapeHtml(app.id || '');
+                    return '<div class="app-card" onclick="deployApp(\'' + safeId + '\')">' +
+                        '<div class="app-name">' + safeName + '</div>' +
+                        '<div class="app-desc">' + safeDesc + '</div>' +
+                    '</div>';
+                }).join('');
+            } catch {}
         }
 
         async function loadDeployed() {
-            const res = await fetch('/api/apps');
-            const apps = await res.json();
-            document.getElementById('app-count').textContent = apps.length;
-            const grid = document.getElementById('deployed-apps');
-            grid.innerHTML = apps.map(app => `
-                <div class="app-card">
-                    <div class="app-name">${app.name}</div>
-                    <div class="app-desc">${app.type} — ${app.status} — ${app.domain}</div>
-                    <div style="margin-top:1rem;">
-                        <button class="btn" onclick="startApp(${app.id})">Start</button>
-                        <button class="btn" onclick="stopApp(${app.id})">Stop</button>
-                        <button class="btn" onclick="deleteApp(${app.id})" style="background:#da3633;">Delete</button>
-                    </div>
-                </div>
-            `).join('') || '<p style="color:#8b949e;">No apps deployed yet.</p>';
+            try {
+                const res = await apiFetch('/api/apps');
+                if (!res.ok) return;
+                const apps = await res.json();
+                document.getElementById('app-count').textContent = apps.length;
+                const grid = document.getElementById('deployed-apps');
+                if (apps.length === 0) {
+                    grid.innerHTML = '<p style="color:#8b949e;">No apps deployed yet.</p>';
+                    return;
+                }
+                grid.innerHTML = apps.map(app => {
+                    const safeName = escapeHtml(app.name);
+                    const safeType = escapeHtml(app.type);
+                    const safeStatus = escapeHtml(app.status);
+                    const safeDomain = escapeHtml(app.domain);
+                    return '<div class="app-card">' +
+                        '<div class="app-name">' + safeName + '</div>' +
+                        '<div class="app-desc">' + safeType + ' — ' + safeStatus + ' — ' + safeDomain + '</div>' +
+                        '<div class="actions">' +
+                            '<button class="btn btn-primary" onclick="startApp(' + app.id + ')">Start</button>' +
+                            '<button class="btn btn-secondary" onclick="stopApp(' + app.id + ')">Stop</button>' +
+                            '<button class="btn btn-danger" onclick="deleteApp(' + app.id + ')">Delete</button>' +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+            } catch {}
         }
 
         async function deployApp(appType) {
             const name = prompt('App name:', appType + '-' + Math.random().toString(36).substr(2, 4));
             if (!name) return;
-            
-            await fetch('/api/apps', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({app_type: appType, name: name})
-            });
-            loadDeployed();
+            try {
+                const res = await apiFetch('/api/apps', {
+                    method: 'POST',
+                    body: JSON.stringify({app_type: appType, name: name})
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast('App deployed', 'success');
+                    loadDeployed();
+                } else {
+                    showToast(data.error || 'Deploy failed', 'error');
+                }
+            } catch (e) {
+                showToast('Network error', 'error');
+            }
         }
 
         async function startApp(id) {
-            await fetch(`/api/apps/${id}/start`, {method: 'POST'});
-            loadDeployed();
+            try {
+                const res = await apiFetch('/api/apps/' + id + '/start', {method: 'POST'});
+                if (res.ok) { loadDeployed(); showToast('App started', 'success'); }
+                else { const d = await res.json(); showToast(d.error || 'Failed', 'error'); }
+            } catch { showToast('Network error', 'error'); }
         }
 
         async function stopApp(id) {
-            await fetch(`/api/apps/${id}/stop`, {method: 'POST'});
-            loadDeployed();
+            try {
+                const res = await apiFetch('/api/apps/' + id + '/stop', {method: 'POST'});
+                if (res.ok) { loadDeployed(); showToast('App stopped', 'success'); }
+                else { const d = await res.json(); showToast(d.error || 'Failed', 'error'); }
+            } catch { showToast('Network error', 'error'); }
         }
 
         async function deleteApp(id) {
-            if (!confirm('Delete this app?')) return;
-            await fetch(`/api/apps/${id}`, {method: 'DELETE'});
-            loadDeployed();
+            if (!confirm('Delete this app and all its data?')) return;
+            try {
+                const res = await apiFetch('/api/apps/' + id, {method: 'DELETE'});
+                if (res.ok) { loadDeployed(); showToast('App deleted', 'success'); }
+                else { const d = await res.json(); showToast(d.error || 'Failed', 'error'); }
+            } catch { showToast('Network error', 'error'); }
         }
 
-        loadSystem();
-        loadStore();
-        loadDeployed();
-        setInterval(loadSystem, 5000);
+        checkAuth();
+        setInterval(() => { if (token) loadSystem(); }, 5000);
     </script>
 </body>
 </html>
