@@ -6,14 +6,12 @@ __pycache__/
 .env
 .venv/
 
-# SelfHostBox data
-/opt/selfhostbox/
 *.db
 
-# App data
 apps/
 data/
 backups/
 
-# Logs
 *.log
+
+config/config.yml
