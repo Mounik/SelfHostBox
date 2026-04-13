@@ -1,38 +1,75 @@
 #!/bin/bash
-# SelfHostBox Installer
 set -e
 
 echo "=== SelfHostBox Installer ==="
 
-# Check root
 if [ "$EUID" -ne 0 ]; then
     echo "Please run as root (sudo)"
     exit 1
 fi
 
-# Install dependencies
-apt-get update
-apt-get install -y python3 python3-pip docker.io docker-compose git
+DISTRO_ID=""
+if [ -f /etc/os-release ]; then
+    DISTRO_ID=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
+fi
 
-# Create directories
-mkdir -p /opt/selfhostbox/{apps,data,backups}
-mkdir -p /opt/selfhostbox/traefik
+echo "Detected distro: ${DISTRO_ID:-unknown}"
 
-# Setup Traefik
+install_deps_debian() {
+    apt-get update
+    apt-get install -y python3 python3-pip python3-venv docker.io docker-compose-plugin git curl
+}
+
+install_deps_fedora() {
+    dnf install -y python3 python3-pip docker docker-compose-plugin git curl
+}
+
+install_deps_arch() {
+    pacman -Sy --noconfirm python python-pip docker docker-compose-plugin git curl
+}
+
+case "$DISTRO_ID" in
+    ubuntu|debian|linuxmint|pop)
+        install_deps_debian
+        ;;
+    fedora|rhel|centos|rocky|alma)
+        install_deps_fedora
+        ;;
+    arch|manjaro|endeavouros)
+        install_deps_arch
+        ;;
+    *)
+        echo "Unsupported distro. Please install manually: python3, pip, docker, docker-compose-plugin, git"
+        exit 1
+        ;;
+esac
+
+mkdir -p /opt/selfhostbox/{apps,data,backups,config,traefik}
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+if [ "$SCRIPT_DIR" != "/opt/selfhostbox" ]; then
+    if [ -d /opt/selfhostbox/.git ]; then
+        cd /opt/selfhostbox && git pull
+    else
+        git clone https://github.com/Mounik/SelfHostBox.git /opt/selfhostbox
+    fi
+fi
+
 cat > /opt/selfhostbox/traefik/docker-compose.yml << 'EOF'
 version: "3.8"
 services:
   traefik:
-    image: traefik:v2.10
+    image: traefik:v3.0
     command:
-      - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.email=admin@example.com"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@example.com}"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--api.dashboard=true"
+      - "--api.insecure=false"
     ports:
       - "80:80"
       - "443:443"
@@ -42,40 +79,32 @@ services:
     networks:
       - selfhostbox
     restart: unless-stopped
+    labels:
+      - "traefik.enable=false"
 
 networks:
   selfhostbox:
     external: true
 EOF
 
-# Create network
 docker network create selfhostbox 2>/dev/null || true
 
-# Clone SelfHostBox
-cd /opt
-if [ -d "selfhostbox" ]; then
-    cd selfhostbox && git pull
-else
-    git clone https://github.com/Mounik/SelfHostBox.git selfhostbox
+if [ ! -f /opt/selfhostbox/config/config.yml ]; then
+    cp /opt/selfhostbox/config/config.yml.example /opt/selfhostbox/config/config.yml
+    echo ""
+    echo "!! Edit /opt/selfhostbox/config/config.yml with your domain and email !!"
 fi
 
-cd /opt/selfhostbox
+python3 -m venv /opt/selfhostbox/.venv
+/opt/selfhostbox/.venv/bin/pip install -r /opt/selfhostbox/requirements.txt
 
-# Install Python deps
-pip3 install -r requirements.txt
-
-# Create database
-python3 -c "from backend.app import db; db.create_all()"
-
-# Start Traefik
 cd /opt/selfhostbox/traefik
-docker-compose up -d
+docker compose up -d
 
-# Install systemd service
-cp systemd/selfhostbox.service /etc/systemd/system/
+cp /opt/selfhostbox/systemd/selfhostbox.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable selfhostbox
-systemctl start selfhostbox
+systemctl restart selfhostbox
 
 echo ""
 echo "=== SelfHostBox installed ==="
