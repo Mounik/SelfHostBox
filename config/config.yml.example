@@ -1,4 +1,3 @@
-# SelfHostBox Configuration
 version: "1.0"
 
 base_domain: "selfhostbox.local"
@@ -29,3 +28,10 @@ apps_dir: /opt/selfhostbox/apps
 database:
   type: sqlite
   path: /opt/selfhostbox/selfhostbox.db
+
+auth:
+  secret_key: "CHANGE-ME-IN-PRODUCTION"
+  token_expiry_hours: 24
+
+cors_origins:
+  - "http://localhost:8080"
