@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  pihole:
+    image: pihole/pihole:latest
+    environment:
+      TZ: ${TZ:-UTC}
+      WEBPASSWORD: ${ADMIN_PASSWORD}
+    volumes:
+      - pihole_etc:/etc/pihole
+      - pihole_dnsmasq:/etc/dnsmasq.d
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=80"
+    networks:
+      - selfhostbox
+    restart: unless-stopped
+
+volumes:
+  pihole_etc:
+  pihole_dnsmasq:
+
+networks:
+  selfhostbox:
+    external: true

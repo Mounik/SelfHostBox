@@ -1,0 +1,21 @@
+{
+  "name": "Vaultwarden",
+  "id": "vaultwarden",
+  "description": "Lightweight Bitwarden-compatible password manager",
+  "category": "productivity",
+  "icon": "vaultwarden.png",
+  "version": "1.0.0",
+  "ports": ["80"],
+  "env": {
+    "ADMIN_TOKEN": {
+      "description": "Admin panel security token",
+      "required": true,
+      "default": "auto-generate"
+    }
+  },
+  "volumes": ["vaultwarden_data"],
+  "minimum_resources": {
+    "memory": "64m",
+    "cpu": "0.1"
+  }
+}

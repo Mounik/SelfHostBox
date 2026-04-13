@@ -1,0 +1,15 @@
+{
+  "name": "Uptime Kuma",
+  "id": "uptime-kuma",
+  "description": "Self-hosted monitoring tool with fancy UI",
+  "category": "monitoring",
+  "icon": "uptime-kuma.png",
+  "version": "1.0.0",
+  "ports": ["3001"],
+  "env": {},
+  "volumes": ["uptime_kuma_data"],
+  "minimum_resources": {
+    "memory": "128m",
+    "cpu": "0.25"
+  }
+}

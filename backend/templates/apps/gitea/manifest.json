@@ -1,0 +1,15 @@
+{
+  "name": "Gitea",
+  "id": "gitea",
+  "description": "Lightweight DevOps platform — Git hosting, CI/CD, packages",
+  "category": "dev-tools",
+  "icon": "gitea.png",
+  "version": "1.0.0",
+  "ports": ["3000"],
+  "env": {},
+  "volumes": ["gitea_data"],
+  "minimum_resources": {
+    "memory": "256m",
+    "cpu": "0.25"
+  }
+}

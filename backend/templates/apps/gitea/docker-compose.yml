@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  gitea:
+    image: gitea/gitea:latest
+    environment:
+      USER_UID: 1000
+      USER_GID: 1000
+      GITEA__server__ROOT_URL: https://${DOMAIN}
+    volumes:
+      - gitea_data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=3000"
+    networks:
+      - selfhostbox
+    restart: unless-stopped
+
+volumes:
+  gitea_data:
+
+networks:
+  selfhostbox:
+    external: true

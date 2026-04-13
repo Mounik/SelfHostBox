@@ -1,0 +1,31 @@
+{
+  "name": "Nextcloud",
+  "id": "nextcloud",
+  "description": "Self-hosted productivity platform — files, calendar, contacts, and more",
+  "category": "productivity",
+  "icon": "nextcloud.png",
+  "version": "1.0.0",
+  "ports": ["80"],
+  "env": {
+    "DB_PASSWORD": {
+      "description": "PostgreSQL password",
+      "required": true,
+      "default": "auto-generate"
+    },
+    "ADMIN_USER": {
+      "description": "Nextcloud admin username",
+      "required": true,
+      "default": "admin"
+    },
+    "ADMIN_PASSWORD": {
+      "description": "Nextcloud admin password",
+      "required": true,
+      "default": "auto-generate"
+    }
+  },
+  "volumes": ["db_data", "nextcloud_data"],
+  "minimum_resources": {
+    "memory": "512m",
+    "cpu": "0.5"
+  }
+}

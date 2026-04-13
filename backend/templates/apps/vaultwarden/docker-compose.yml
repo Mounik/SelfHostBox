@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    environment:
+      WEBSOCKET_ENABLED: "true"
+      SIGNUPS_ALLOWED: "false"
+      ADMIN_TOKEN: ${ADMIN_TOKEN}
+    volumes:
+      - vaultwarden_data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=80"
+      - "traefik.http.routers.${APP_NAME}-ws.rule=Host(`${DOMAIN}`) && Path(`/notifications/hub`)"
+      - "traefik.http.routers.${APP_NAME}-ws.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}-ws.tls.certresolver=letsencrypt"
+    networks:
+      - selfhostbox
+    restart: unless-stopped
+
+volumes:
+  vaultwarden_data:
+
+networks:
+  selfhostbox:
+    external: true

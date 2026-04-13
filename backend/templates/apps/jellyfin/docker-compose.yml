@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    environment:
+      PUID: 1000
+      PGID: 1000
+    volumes:
+      - jellyfin_config:/config
+      - jellyfin_cache:/cache
+      - ${MEDIA_PATH:-./media}:/media:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=8096"
+    networks:
+      - selfhostbox
+    restart: unless-stopped
+
+volumes:
+  jellyfin_config:
+  jellyfin_cache:
+
+networks:
+  selfhostbox:
+    external: true

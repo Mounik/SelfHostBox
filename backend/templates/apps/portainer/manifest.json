@@ -1,0 +1,15 @@
+{
+  "name": "Portainer",
+  "id": "portainer",
+  "description": "Docker management web UI",
+  "category": "monitoring",
+  "icon": "portainer.png",
+  "version": "1.0.0",
+  "ports": ["9000"],
+  "env": {},
+  "volumes": ["portainer_data"],
+  "minimum_resources": {
+    "memory": "128m",
+    "cpu": "0.25"
+  }
+}

@@ -8,7 +8,7 @@ __pycache__/
 
 *.db
 
-apps/
+/opt/selfhostbox/apps/
 data/
 backups/
 

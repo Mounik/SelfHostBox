@@ -1,0 +1,26 @@
+{
+  "name": "Pi-hole",
+  "id": "pihole",
+  "description": "Network-wide ad blocking via DNS",
+  "category": "misc",
+  "icon": "pihole.png",
+  "version": "1.0.0",
+  "ports": ["80"],
+  "env": {
+    "ADMIN_PASSWORD": {
+      "description": "Web admin password",
+      "required": true,
+      "default": "auto-generate"
+    },
+    "TZ": {
+      "description": "Timezone",
+      "required": false,
+      "default": "UTC"
+    }
+  },
+  "volumes": ["pihole_etc", "pihole_dnsmasq"],
+  "minimum_resources": {
+    "memory": "128m",
+    "cpu": "0.25"
+  }
+}

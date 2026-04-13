@@ -1,0 +1,21 @@
+{
+  "name": "Jellyfin",
+  "id": "jellyfin",
+  "description": "Free software media system — movies, TV, music",
+  "category": "media",
+  "icon": "jellyfin.png",
+  "version": "1.0.0",
+  "ports": ["8096"],
+  "env": {
+    "MEDIA_PATH": {
+      "description": "Path to media files on host",
+      "required": false,
+      "default": "./media"
+    }
+  },
+  "volumes": ["jellyfin_config", "jellyfin_cache"],
+  "minimum_resources": {
+    "memory": "512m",
+    "cpu": "0.5"
+  }
+}
