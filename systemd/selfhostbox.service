@@ -4,10 +4,12 @@ After=network.target docker.service
 
 [Service]
 Type=simple
-User=root
+User=selfhostbox
+Group=selfhostbox
 WorkingDirectory=/opt/selfhostbox
 Environment=PYTHONPATH=/opt/selfhostbox
-ExecStart=/usr/bin/python3 /opt/selfhostbox/backend/app.py
+Environment=SELFHOSTBOX_CONFIG=/opt/selfhostbox/config/config.yml
+ExecStart=/opt/selfhostbox/.venv/bin/gunicorn --bind 0.0.0.0:8080 --workers 2 "backend.app:create_app()"
 Restart=always
 RestartSec=5
 
