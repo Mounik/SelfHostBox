@@ -1,4 +1,5 @@
 # SelfHostBox 🏠
+![CI](https://github.com/Mounik/SelfHostBox/actions/workflows/ci.yml/badge.svg)
 
 **One-click self-hosting platform — deploy Nextcloud, Vaultwarden, and 20+ apps in seconds**
 
