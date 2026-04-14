@@ -1,0 +1,31 @@
+version: "3.8"
+services:
+  plex:
+    image: plexinc/pms-docker:latest
+    environment:
+      PLEX_CLAIM: ${PLEX_CLAIM}
+      TZ: Europe/Paris
+      PLEX_UID: 1000
+      PLEX_GID: 1000
+    volumes:
+      - plex_config:/config
+      - plex_transcode:/transcode
+      - plex_data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=32400"
+    networks:
+      - selfhostbox
+    restart: unless-stopped
+
+volumes:
+  plex_config:
+  plex_transcode:
+  plex_data:
+
+networks:
+  selfhostbox:
+    external: true

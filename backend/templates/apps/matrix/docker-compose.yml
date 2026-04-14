@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  synapse:
+    image: matrixdotorg/synapse:latest
+    environment:
+      SYNAPSE_CONFIG_PATH: /data/homeserver.yaml
+      SYNAPSE_SERVER_NAME: ${SERVER_NAME}
+      SYNAPSE_REPORT_STATS: "no"
+    volumes:
+      - matrix_data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=8008"
+    networks:
+      - selfhostbox
+    restart: unless-stopped
+
+volumes:
+  matrix_data:
+
+networks:
+  selfhostbox:
+    external: true

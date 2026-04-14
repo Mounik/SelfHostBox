@@ -1,0 +1,61 @@
+version: "3.8"
+services:
+  rocketchat:
+    image: rocket.chat:latest
+    environment:
+      ROOT_URL: https://${DOMAIN}
+      MONGO_URL: mongodb://mongo:27017/rocketchat?replicaSet=rs0
+      MONGO_OPLOG_URL: mongodb://mongo:27017/local?replicaSet=rs0
+      OVERWRITE_SETTING_Site_Url: https://${DOMAIN}
+    depends_on:
+      - mongo
+      - mongo-init-replica
+    volumes:
+      - rocketchat_uploads:/app/uploads
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=3000"
+    networks:
+      - selfhostbox
+      - rocketchat-internal
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:6.0
+    command: mongod --oplogSize 128 --replSet rs0
+    volumes:
+      - rocketchat_db:/data/db
+    networks:
+      - rocketchat-internal
+    restart: unless-stopped
+
+  mongo-init-replica:
+    image: mongo:6.0
+    command: >
+      bash -c
+        "for i in `seq 1 30`; do
+          mongo mongo/rocketchat --eval '
+            rs.initiate({
+              _id: \"rs0\",
+              members: [ { _id: 0, host: \"mongo:27017\" } ]
+            })
+          ' && s=$$? && break || s=$$?;
+          echo \"Tried $$i times. Waiting 5s...\";
+          sleep 5;
+        done; (exit $$s)"
+    depends_on:
+      - mongo
+    networks:
+      - rocketchat-internal
+
+volumes:
+  rocketchat_uploads:
+  rocketchat_db:
+
+networks:
+  selfhostbox:
+    external: true
+  rocketchat-internal:

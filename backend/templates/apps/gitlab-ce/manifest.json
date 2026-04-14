@@ -1,0 +1,15 @@
+{
+  "name": "GitLab CE",
+  "id": "gitlab-ce",
+  "description": "Complete DevOps platform with Git repository management",
+  "category": "dev-tools",
+  "icon": "gitlab.png",
+  "version": "1.0.0",
+  "ports": ["80", "2224"],
+  "env": {},
+  "volumes": ["gitlab_config", "gitlab_logs", "gitlab_data"],
+  "minimum_resources": {
+    "memory": "4g",
+    "cpu": "2.0"
+  }
+}

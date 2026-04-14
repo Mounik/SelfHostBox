@@ -1,0 +1,15 @@
+{
+  "name": "Home Assistant",
+  "id": "home-assistant",
+  "description": "Open source home automation platform",
+  "category": "iot",
+  "icon": "home-assistant.png",
+  "version": "1.0.0",
+  "ports": ["8123"],
+  "env": {},
+  "volumes": ["homeassistant_config"],
+  "minimum_resources": {
+    "memory": "512m",
+    "cpu": "0.5"
+  }
+}

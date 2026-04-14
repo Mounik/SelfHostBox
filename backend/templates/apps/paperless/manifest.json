@@ -1,0 +1,26 @@
+{
+  "name": "Paperless-ngx",
+  "id": "paperless",
+  "description": "Document management and OCR system",
+  "category": "productivity",
+  "icon": "paperless.png",
+  "version": "1.0.0",
+  "ports": ["8000"],
+  "env": {
+    "SECRET_KEY": {
+      "description": "Secret key for encryption",
+      "required": true,
+      "default": "auto-generate"
+    },
+    "DB_PASSWORD": {
+      "description": "PostgreSQL password",
+      "required": true,
+      "default": "auto-generate"
+    }
+  },
+  "volumes": ["paperless_data", "paperless_media", "paperless_export", "paperless_consume", "paperless_db", "paperless_redis"],
+  "minimum_resources": {
+    "memory": "1g",
+    "cpu": "0.5"
+  }
+}

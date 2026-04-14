@@ -1,0 +1,25 @@
+version: "3.8"
+services:
+  actual-server:
+    image: actualbudget/actual-server:latest
+    environment:
+      ACTUAL_SERVER_URL: https://${DOMAIN}
+      ACTUAL_PASSWORD: ${ACTUAL_PASSWORD}
+    volumes:
+      - actual_budget_data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=5006"
+    networks:
+      - selfhostbox
+    restart: unless-stopped
+
+volumes:
+  actual_budget_data:
+
+networks:
+  selfhostbox:
+    external: true

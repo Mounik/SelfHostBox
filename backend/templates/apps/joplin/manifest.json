@@ -1,0 +1,36 @@
+{
+  "name": "Joplin Server",
+  "id": "joplin",
+  "description": "Note-taking app with sync server",
+  "category": "productivity",
+  "icon": "joplin.png",
+  "version": "1.0.0",
+  "ports": ["22300"],
+  "env": {
+    "APP_BASE_URL": {
+      "description": "Base URL of the server",
+      "required": true,
+      "default": "https://${DOMAIN}"
+    },
+    "APP_PORT": {
+      "description": "Server port",
+      "required": false,
+      "default": "22300"
+    },
+    "DB_CLIENT": {
+      "description": "Database type",
+      "required": false,
+      "default": "pg"
+    },
+    "POSTGRES_PASSWORD": {
+      "description": "PostgreSQL password",
+      "required": true,
+      "default": "auto-generate"
+    }
+  },
+  "volumes": ["joplin_data", "joplin_db"],
+  "minimum_resources": {
+    "memory": "256m",
+    "cpu": "0.25"
+  }
+}

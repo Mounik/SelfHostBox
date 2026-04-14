@@ -1,0 +1,15 @@
+{
+  "name": "Jenkins",
+  "id": "jenkins",
+  "description": "Open source automation server for CI/CD",
+  "category": "dev-tools",
+  "icon": "jenkins.png",
+  "version": "1.0.0",
+  "ports": ["8080"],
+  "env": {},
+  "volumes": ["jenkins_data"],
+  "minimum_resources": {
+    "memory": "1g",
+    "cpu": "0.5"
+  }
+}

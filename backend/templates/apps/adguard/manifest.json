@@ -1,0 +1,15 @@
+{
+  "name": "AdGuard Home",
+  "id": "adguard",
+  "description": "Network-wide ad and tracker blocker",
+  "category": "network",
+  "icon": "adguard.png",
+  "version": "1.0.0",
+  "ports": ["80", "53", "853"],
+  "env": {},
+  "volumes": ["adguard_work", "adguard_conf"],
+  "minimum_resources": {
+    "memory": "128m",
+    "cpu": "0.1"
+  }
+}

@@ -1,0 +1,62 @@
+version: "3.8"
+services:
+  photoprism:
+    image: photoprism/photoprism:latest
+    environment:
+      PHOTOPRISM_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      PHOTOPRISM_AUTH_MODE: password
+      PHOTOPRISM_SITE_URL: https://${DOMAIN}
+      PHOTOPRISM_DATABASE_DRIVER: mysql
+      PHOTOPRISM_DATABASE_SERVER: photoprism-mariadb:3306
+      PHOTOPRISM_DATABASE_NAME: photoprism
+      PHOTOPRISM_DATABASE_USER: photoprism
+      PHOTOPRISM_DATABASE_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - photoprism_storage:/photoprism/storage
+      - photoprism_originals:/photoprism/originals
+      - photoprism_import:/photoprism/import
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=2342"
+    networks:
+      - selfhostbox
+      - photoprism-internal
+    restart: unless-stopped
+    depends_on:
+      - photoprism-mariadb
+
+  photoprism-mariadb:
+    image: mariadb:10.11
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: photoprism
+      MYSQL_USER: photoprism
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - photoprism_db:/var/lib/mysql
+    networks:
+      - photoprism-internal
+    restart: unless-stopped
+    command: >
+      mysqld
+      --innodb-buffer-pool-size=512M
+      --transaction-isolation=READ-COMMITTED
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --max-connections=512
+      --innodb-rollback-on-timeout=OFF
+      --innodb-lock-wait-timeout=120
+
+volumes:
+  photoprism_storage:
+  photoprism_originals:
+  photoprism_import:
+  photoprism_db:
+
+networks:
+  selfhostbox:
+    external: true
+  photoprism-internal:

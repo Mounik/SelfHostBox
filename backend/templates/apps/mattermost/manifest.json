@@ -1,0 +1,21 @@
+{
+  "name": "Mattermost",
+  "id": "mattermost",
+  "description": "Open source Slack alternative",
+  "category": "communication",
+  "icon": "mattermost.png",
+  "version": "1.0.0",
+  "ports": ["8065"],
+  "env": {
+    "DB_PASSWORD": {
+      "description": "PostgreSQL password",
+      "required": true,
+      "default": "auto-generate"
+    }
+  },
+  "volumes": ["mattermost_data", "mattermost_logs", "mattermost_config", "mattermost_plugins", "mattermost_client", "mattermost_bleve", "mattermost_db"],
+  "minimum_resources": {
+    "memory": "1g",
+    "cpu": "0.5"
+  }
+}

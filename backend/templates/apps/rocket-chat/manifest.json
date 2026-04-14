@@ -1,0 +1,15 @@
+{
+  "name": "Rocket.Chat",
+  "id": "rocket-chat",
+  "description": "Team communication platform",
+  "category": "communication",
+  "icon": "rocketchat.png",
+  "version": "1.0.0",
+  "ports": ["3000"],
+  "env": {},
+  "volumes": ["rocketchat_uploads", "rocketchat_db"],
+  "minimum_resources": {
+    "memory": "1g",
+    "cpu": "0.5"
+  }
+}

@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  code-server:
+    image: codercom/code-server:latest
+    environment:
+      PASSWORD: ${PASSWORD}
+    volumes:
+      - code_server_data:/home/coder
+      - code_server_projects:/home/coder/project
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=8080"
+    networks:
+      - selfhostbox
+    restart: unless-stopped
+
+volumes:
+  code_server_data:
+  code_server_projects:
+
+networks:
+  selfhostbox:
+    external: true

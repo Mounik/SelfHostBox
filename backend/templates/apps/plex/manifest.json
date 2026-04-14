@@ -1,0 +1,21 @@
+{
+  "name": "Plex",
+  "id": "plex",
+  "description": "Media server for movies, TV shows, and music",
+  "category": "media",
+  "icon": "plex.png",
+  "version": "1.0.0",
+  "ports": ["32400"],
+  "env": {
+    "PLEX_CLAIM": {
+      "description": "Plex claim token (get from plex.tv/claim)",
+      "required": true,
+      "default": ""
+    }
+  },
+  "volumes": ["plex_config", "plex_transcode", "plex_data"],
+  "minimum_resources": {
+    "memory": "1g",
+    "cpu": "0.5"
+  }
+}

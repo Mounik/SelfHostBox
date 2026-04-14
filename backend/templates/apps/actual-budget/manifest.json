@@ -1,0 +1,21 @@
+{
+  "name": "Actual Budget",
+  "id": "actual-budget",
+  "description": "Privacy-focused personal finance app",
+  "category": "finance",
+  "icon": "actual-budget.png",
+  "version": "1.0.0",
+  "ports": ["5006"],
+  "env": {
+    "ACTUAL_PASSWORD": {
+      "description": "Password for Actual Budget",
+      "required": true,
+      "default": "auto-generate"
+    }
+  },
+  "volumes": ["actual_budget_data"],
+  "minimum_resources": {
+    "memory": "256m",
+    "cpu": "0.25"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Navidrome",
+  "id": "navidrome",
+  "description": "Lightweight music server and streamer",
+  "category": "media",
+  "icon": "navidrome.png",
+  "version": "1.0.0",
+  "ports": ["4533"],
+  "env": {},
+  "volumes": ["navidrome_data", "navidrome_music"],
+  "minimum_resources": {
+    "memory": "128m",
+    "cpu": "0.1"
+  }
+}

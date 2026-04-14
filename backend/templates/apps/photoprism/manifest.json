@@ -1,0 +1,31 @@
+{
+  "name": "Photoprism",
+  "id": "photoprism",
+  "description": "AI-powered photo management and gallery",
+  "category": "media",
+  "icon": "photoprism.png",
+  "version": "1.0.0",
+  "ports": ["2342"],
+  "env": {
+    "ADMIN_PASSWORD": {
+      "description": "Admin password for PhotoPrism",
+      "required": true,
+      "default": "auto-generate"
+    },
+    "DB_PASSWORD": {
+      "description": "MariaDB password",
+      "required": true,
+      "default": "auto-generate"
+    },
+    "DB_ROOT_PASSWORD": {
+      "description": "MariaDB root password",
+      "required": true,
+      "default": "auto-generate"
+    }
+  },
+  "volumes": ["photoprism_storage", "photoprism_originals", "photoprism_import", "photoprism_db"],
+  "minimum_resources": {
+    "memory": "2g",
+    "cpu": "1.0"
+  }
+}

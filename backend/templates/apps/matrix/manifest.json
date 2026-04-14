@@ -1,0 +1,21 @@
+{
+  "name": "Matrix (Synapse)",
+  "id": "matrix",
+  "description": "Decentralized communication platform",
+  "category": "communication",
+  "icon": "matrix.png",
+  "version": "1.0.0",
+  "ports": ["8008"],
+  "env": {
+    "SERVER_NAME": {
+      "description": "Matrix server name (your domain)",
+      "required": true,
+      "default": "${DOMAIN}"
+    }
+  },
+  "volumes": ["matrix_data"],
+  "minimum_resources": {
+    "memory": "512m",
+    "cpu": "0.5"
+  }
+}

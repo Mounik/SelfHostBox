@@ -1,0 +1,54 @@
+version: "3.8"
+services:
+  mattermost:
+    image: mattermost/mattermost-team-edition:latest
+    environment:
+      MM_SQLSETTINGS_DRIVERNAME: postgres
+      MM_SQLSETTINGS_DATASOURCE: postgres://mattermost:${DB_PASSWORD}@mattermost-db:5432/mattermost?sslmode=disable&connect_timeout=10
+      MM_BLEVESETTINGS_INDEXDIR: /mattermost/bleve-indexes
+      MM_SERVICESETTINGS_SITEURL: https://${DOMAIN}
+    volumes:
+      - mattermost_data:/mattermost/data
+      - mattermost_logs:/mattermost/logs
+      - mattermost_config:/mattermost/config
+      - mattermost_plugins:/mattermost/plugins
+      - mattermost_client:/mattermost/client/plugins
+      - mattermost_bleve:/mattermost/bleve-indexes
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=8065"
+    networks:
+      - selfhostbox
+      - mattermost-internal
+    restart: unless-stopped
+    depends_on:
+      - mattermost-db
+
+  mattermost-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: mattermost
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: mattermost
+    volumes:
+      - mattermost_db:/var/lib/postgresql/data
+    networks:
+      - mattermost-internal
+    restart: unless-stopped
+
+volumes:
+  mattermost_data:
+  mattermost_logs:
+  mattermost_config:
+  mattermost_plugins:
+  mattermost_client:
+  mattermost_bleve:
+  mattermost_db:
+
+networks:
+  selfhostbox:
+    external: true
+  mattermost-internal:

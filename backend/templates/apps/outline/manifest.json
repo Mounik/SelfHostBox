@@ -1,0 +1,31 @@
+{
+  "name": "Outline",
+  "id": "outline",
+  "description": "Modern wiki and knowledge base for teams",
+  "category": "productivity",
+  "icon": "outline.png",
+  "version": "1.0.0",
+  "ports": ["3000"],
+  "env": {
+    "SECRET_KEY": {
+      "description": "Secret key for sessions",
+      "required": true,
+      "default": "auto-generate"
+    },
+    "UTILS_SECRET": {
+      "description": "Secret for utilities",
+      "required": true,
+      "default": "auto-generate"
+    },
+    "DB_PASSWORD": {
+      "description": "PostgreSQL password",
+      "required": true,
+      "default": "auto-generate"
+    }
+  },
+  "volumes": ["outline_data", "outline_db", "outline_redis"],
+  "minimum_resources": {
+    "memory": "512m",
+    "cpu": "0.5"
+  }
+}

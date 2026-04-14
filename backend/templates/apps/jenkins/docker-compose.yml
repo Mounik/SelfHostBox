@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    environment:
+      JAVA_OPTS: -Djenkins.install.runSetupWizard=false
+      JENKINS_OPTS: --httpPort=8080
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=8080"
+    networks:
+      - selfhostbox
+    restart: unless-stopped
+
+volumes:
+  jenkins_data:
+
+networks:
+  selfhostbox:
+    external: true

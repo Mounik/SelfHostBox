@@ -1,0 +1,50 @@
+version: "3.8"
+services:
+  fireflyiii:
+    image: fireflyiii/core:latest
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "false"
+      APP_URL: https://${DOMAIN}
+      APP_KEY: ${APP_KEY}
+      DB_CONNECTION: pgsql
+      DB_HOST: fireflyiii-db
+      DB_PORT: 5432
+      DB_DATABASE: firefly
+      DB_USERNAME: firefly
+      DB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - fireflyiii_upload:/var/www/html/storage/upload
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=8080"
+    networks:
+      - selfhostbox
+      - fireflyiii-internal
+    restart: unless-stopped
+    depends_on:
+      - fireflyiii-db
+
+  fireflyiii-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: firefly
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: firefly
+    volumes:
+      - fireflyiii_db:/var/lib/postgresql/data
+    networks:
+      - fireflyiii-internal
+    restart: unless-stopped
+
+volumes:
+  fireflyiii_upload:
+  fireflyiii_db:
+
+networks:
+  selfhostbox:
+    external: true
+  fireflyiii-internal:

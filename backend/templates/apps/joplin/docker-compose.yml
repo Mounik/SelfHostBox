@@ -1,0 +1,46 @@
+version: "3.8"
+services:
+  joplin:
+    image: joplin/server:latest
+    environment:
+      APP_PORT: 22300
+      APP_BASE_URL: https://${DOMAIN}
+      DB_CLIENT: pg
+      POSTGRES_HOST: joplin-db
+      POSTGRES_PORT: 5432
+      POSTGRES_DATABASE: joplin
+      POSTGRES_USER: joplin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=22300"
+    networks:
+      - selfhostbox
+      - joplin-internal
+    restart: unless-stopped
+    depends_on:
+      - joplin-db
+
+  joplin-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: joplin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: joplin
+    volumes:
+      - joplin_db:/var/lib/postgresql/data
+    networks:
+      - joplin-internal
+    restart: unless-stopped
+
+volumes:
+  joplin_data:
+  joplin_db:
+
+networks:
+  selfhostbox:
+    external: true
+  joplin-internal:

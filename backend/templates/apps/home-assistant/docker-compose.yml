@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  homeassistant:
+    image: homeassistant/home-assistant:stable
+    environment:
+      TZ: Europe/Paris
+    volumes:
+      - homeassistant_config:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=8123"
+    networks:
+      - selfhostbox
+    restart: unless-stopped
+    privileged: true
+
+volumes:
+  homeassistant_config:
+
+networks:
+  selfhostbox:
+    external: true

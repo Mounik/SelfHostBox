@@ -1,0 +1,15 @@
+{
+  "name": "Netdata",
+  "id": "netdata",
+  "description": "Real-time performance monitoring",
+  "category": "monitoring",
+  "icon": "netdata.png",
+  "version": "1.0.0",
+  "ports": ["19999"],
+  "env": {},
+  "volumes": ["netdata_config", "netdata_lib", "netdata_cache"],
+  "minimum_resources": {
+    "memory": "256m",
+    "cpu": "0.25"
+  }
+}

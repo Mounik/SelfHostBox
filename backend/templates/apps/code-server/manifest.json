@@ -1,0 +1,21 @@
+{
+  "name": "Code Server",
+  "id": "code-server",
+  "description": "VS Code in the browser",
+  "category": "dev-tools",
+  "icon": "vscode.png",
+  "version": "1.0.0",
+  "ports": ["8080"],
+  "env": {
+    "PASSWORD": {
+      "description": "Password for accessing code-server",
+      "required": true,
+      "default": "auto-generate"
+    }
+  },
+  "volumes": ["code_server_data", "code_server_projects"],
+  "minimum_resources": {
+    "memory": "512m",
+    "cpu": "0.5"
+  }
+}

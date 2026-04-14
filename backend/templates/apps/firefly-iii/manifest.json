@@ -1,0 +1,26 @@
+{
+  "name": "Firefly III",
+  "id": "firefly-iii",
+  "description": "Personal finance manager",
+  "category": "finance",
+  "icon": "firefly.png",
+  "version": "1.0.0",
+  "ports": ["8080"],
+  "env": {
+    "APP_KEY": {
+      "description": "Application encryption key",
+      "required": true,
+      "default": "auto-generate"
+    },
+    "DB_PASSWORD": {
+      "description": "PostgreSQL password",
+      "required": true,
+      "default": "auto-generate"
+    }
+  },
+  "volumes": ["fireflyiii_upload", "fireflyiii_db"],
+  "minimum_resources": {
+    "memory": "512m",
+    "cpu": "0.5"
+  }
+}
