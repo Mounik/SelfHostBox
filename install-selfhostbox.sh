@@ -79,20 +79,37 @@ success "Package lists updated"
 
 # Install dependencies
 status "Installing dependencies..."
-apt-get install -y -qq \
-    curl \
-    git \
-    python3 \
-    python3-pip \
-    python3-venv \
-    apt-transport-https \
-    ca-certificates \
-    gnupg \
-    lsb-release \
-    software-properties-common || {
-    error "Failed to install dependencies"
-    exit 1
-}
+if [ "$OS" = "ubuntu" ]; then
+    apt-get install -y -qq \
+        curl \
+        git \
+        python3 \
+        python3-pip \
+        python3-venv \
+        apt-transport-https \
+        ca-certificates \
+        gnupg \
+        lsb-release \
+        software-properties-common || {
+        error "Failed to install dependencies"
+        exit 1
+    }
+else
+    # Debian - without software-properties-common
+    apt-get install -y -qq \
+        curl \
+        git \
+        python3 \
+        python3-pip \
+        python3-venv \
+        apt-transport-https \
+        ca-certificates \
+        gnupg \
+        lsb-release || {
+        error "Failed to install dependencies"
+        exit 1
+    }
+fi
 success "Dependencies installed"
 
 # Install Docker
@@ -106,11 +123,17 @@ if ! command -v docker &> /dev/null; then
         curl -fsSL https://get.docker.com | bash
     fi
     
-    # Install docker-compose
-    if apt-cache show docker-compose >/dev/null 2>&1; then
+    # Install docker-compose (try different methods)
+    if apt-cache show docker-compose-plugin >/dev/null 2>&1; then
+        # New style (plugin)
+        apt-get install -y -qq docker-compose-plugin
+        # Create alias
+        ln -sf /usr/libexec/docker/cli-plugins/docker-compose /usr/local/bin/docker-compose 2>/dev/null || true
+    elif apt-cache show docker-compose >/dev/null 2>&1; then
+        # Old style (standalone)
         apt-get install -y -qq docker-compose
     else
-        # Install docker-compose via pip as fallback
+        # Install via pip as fallback
         pip3 install docker-compose
     fi
     
