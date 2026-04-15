@@ -6,8 +6,8 @@
 SelfHostBox is a web UI that makes self-hosting dead simple. Choose an app, click deploy, get a working instance with SSL, backups, and automatic updates.
 
 ```bash
-# Install SelfHostBox
-curl -sL https://raw.githubusercontent.com/Mounik/SelfHostBox/main/install.sh | sudo bash
+# Install SelfHostBox (Universal)
+curl -fsSL https://raw.githubusercontent.com/Mounik/SelfHostBox/main/install-selfhostbox.sh | sudo bash
 
 # Access web UI
 open http://localhost:8080
@@ -41,7 +41,23 @@ open http://localhost:8080
 
 ## 🚀 Quick Start
 
-### Automated Install
+### Method 1: Universal Installer (Recommended)
+Works on any Ubuntu/Debian VM or server:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Mounik/SelfHostBox/main/install-selfhostbox.sh | sudo bash
+```
+
+### Method 2: Proxmox Template
+Clone the pre-configured Proxmox template (VM ID: 950):
+
+```bash
+qm clone 950 200 --name selfhostbox-new
+qm start 200
+# Access at http://<vm-ip>:8080
+```
+
+### Method 3: Manual Install
 
 ```bash
 curl -sL https://raw.githubusercontent.com/Mounik/SelfHostBox/main/install.sh | sudo bash
