@@ -1,4 +1,3 @@
-import json
 import pytest
 from backend.app import create_app
 from backend.models import db as _db

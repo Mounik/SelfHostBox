@@ -4,10 +4,8 @@ import secrets as _secrets
 from datetime import datetime, timezone
 
 from flask import request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-
 from backend.models import db, DeployedApp
-from backend.core.auth import require_auth, generate_token, verify_token
+from backend.core.auth import require_auth, generate_token
 from backend.core.docker import deploy, start, stop, remove, get_logs, list_templates
 
 
